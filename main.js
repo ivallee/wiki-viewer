@@ -4,22 +4,27 @@
 
 $(document).ready(function() {
   var api = 'https://en.wikipedia.org/w/api.php?';
-  
-  $("#search-button").on("click", function() {
-    var query = encodeURI($('#search-text').val());
+
+  function search(query){
     $.ajax({
-      url: `${api}action=query&list=search&srsearch=${query}&format=json&utf8=`,
+      url: `${api}action=opensearch&search=${query}&limit=10&namespace=0&format=json`,
       method: 'GET',
       data: {
         origin: '*'
       }
     }).then(function(data) {
-      console.log(data.query.search);
-      data.query.search.forEach(function(result) {
-        $('#results-list').append('<li class=\'list-group-item\'></li>').append('<h2>'+result.title+'</h2>').append(`<p>${result.snippet}...</p>`);
-      });
-      
+      for (let i = 0; i < data[1].length; i++) {
+        var title = data[1][i];
+        var subtitle = data[2][i];
+        var link = data[3][i];
+        $('#results-list').append(`<a href=\'${link}\'><li class=\'list-group-item\'><h2>${title}</h2><p>${subtitle}...</p></li></a>`);
+      }
     });
+  }
+  
+  $("#search-button").on("click", function() {
+    var query = encodeURI($('#search-text').val());
+    search(query);
   });
 
 });
